@@ -1,0 +1,8 @@
+[Unit]
+Description=BiTiNo: BILLmanager Ticket Notifier
+Documentation=https://github.com/spijet/bitino
+
+[Service]
+Type=simple
+Environment=DISPLAY=:0
+ExecStart=/opt/bitino/bitino.rb

@@ -20,17 +20,16 @@ require 'libnotify'
 ## Load config file:
 CONFIG = YAML.load_file "#{ENV['HOME']}/.config/isp.conf"
 
-puts "#{__FILE__}"
-
 ## Declare Ticket class to extract tickets from XML more easily:
 class Ticket
-  attr_reader :id, :name, :client, :unread, :blocked, :deadline
+  attr_reader :id, :name, :client, :unread, :blocked, :mine, :deadline
   def initialize(xml_ticket)
     @id = xml_ticket.search(".//ticket").inner_text
     @name = xml_ticket.search(".//name").inner_text
     @client = xml_ticket.search(".//client").inner_text
     @unread = xml_ticket.search(".//unread").inner_text === "on" ? true : false
     @blocked = xml_ticket.search(".//blocked_by").size > 0 ? true : false
+    @mine = xml_ticket.search(".//blocked_by_me").size > 0 ? true : false
     @deadline = xml_ticket.search(".//deadline").inner_text
   end
 end
@@ -66,7 +65,7 @@ loop do
   tickets = get_tickets(api_url)
 
   ## Extract unread and blocked tickets:
-  unread_tickets = tickets.select{ |ticket| ticket.unread and not ticket.blocked }
+  unread_tickets = tickets.select{ |ticket| ticket.unread and not ( ticket.blocked ^ ticket.mine ) }
 
   ## Fire a libnotify event for every unread ticket:
   unread_tickets.each do |unread_ticket|

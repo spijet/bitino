@@ -24,18 +24,20 @@ CONFIG = YAML.load_file(ENV['HOME'] + '/.config/isp.conf')
 class Ticket
   attr_reader :id, :name, :client, :unread, :blocked, :mine, :deadline
 
+  # @param [Nokogiri::XML] xml_ticket
   def initialize(xml_ticket)
     @id = xml_ticket.search('.//ticket').inner_text
     @name = xml_ticket.search('.//name').inner_text
     @client = xml_ticket.search('.//client').inner_text
-    @unread = xml_ticket.search('.//unread').inner_text == 'on' ? true : false
-    @blocked = !xml_ticket.search('.//blocked_by').empty? ? true : false
-    @mine = !xml_ticket.search('.//blocked_by_me').empty? ? true : false
+    @unread = xml_ticket.search('.//unread').inner_text == 'on'
+    @blocked = !xml_ticket.search('.//blocked_by').empty?
+    @mine = !xml_ticket.search('.//blocked_by_me').empty?
     @deadline = xml_ticket.search('.//deadline').inner_text
   end
 end
 
 ## Authenticate and get a session ID:
+# @return [URI::HTTP] api_uri
 def billmgr_auth
   ## Prepare BILLmanager auth URI:
   auth_uri = URI.parse(CONFIG['billmgr'])
@@ -81,12 +83,15 @@ loop do
   ## Fire a libnotify event for every unread ticket:
   unread_tickets.each do |unread_ticket|
     Libnotify.show(
-      summary: format('BILLmgr: %d/%d', unread_tickets.size, tickets.size),
-      body: format('%s: %s\n%s',
-                   unread_ticket.id, unread_ticket.client, unread_ticket.name),
-      timeout: 3,
-      transient: true,
-      append: true
+        summary: format('BILLmgr: %<unread>d/%<total>d',
+                        unread: unread_tickets.size, total: tickets.size),
+        body: format('%<id>s: %<client>s\n%<name>s',
+                     id: unread_ticket.id,
+                     client: unread_ticket.client,
+                     name: unread_ticket.name),
+        timeout: 3,
+        transient: true,
+        append: true
     )
   end
   Kernel.sleep 15

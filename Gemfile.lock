@@ -1,13 +1,13 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    daemons (1.2.4)
-    ffi (1.9.18)
-    libnotify (0.9.3)
+    daemons (1.2.6)
+    ffi (1.9.23)
+    libnotify (0.9.4)
       ffi (>= 1.0.11)
-    mini_portile2 (2.2.0)
-    nokogiri (1.8.0)
-      mini_portile2 (~> 2.2.0)
+    mini_portile2 (2.3.0)
+    nokogiri (1.8.2)
+      mini_portile2 (~> 2.3.0)
 
 PLATFORMS
   ruby
@@ -18,4 +18,4 @@ DEPENDENCIES
   nokogiri
 
 BUNDLED WITH
-   1.15.1
+   1.16.1
